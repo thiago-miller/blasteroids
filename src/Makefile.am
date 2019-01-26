@@ -8,7 +8,11 @@ libblasteroids_la_SOURCES = \
 		asteroid.c  \
 		blast.c \
 		spaceship.c \
-		blasteroids.c
+		spaceship.h \
+		blasteroids.c \
+		blasteroids.h \
+		error.c \
+		error.h
 
 libblasteroids_CPPFLAGS = $(ALLEGRO_CFLAGS)
 libblasteroids_LDADD = $(ALLEGRO_LIBS)
