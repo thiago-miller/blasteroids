@@ -3,14 +3,11 @@
 #endif
 
 #include <allegro5/allegro5.h>
-#include <spaceship.h>
-#include <error.h>
-
-#define FPS 60
-#define DISPLAY_WIDTH 640
-#define DISPLAY_HEIGH 480
-#define SPACESHIP_COLOR al_map_rgb (0, 100, 0)
-#define MAX_SPEED 5
+#include "spaceship.h"
+#include "blast.h"
+#include "input.h"
+#include "error.h"
+#include "blasteroids.h"
 
 static bool done;
 static ALLEGRO_EVENT_QUEUE* event_queue;
@@ -46,8 +43,7 @@ blasteroids_init (void)
 
 	done = false;
 
-	s = spaceship_new (al_get_display_width (display) / 2,
-			al_get_display_height (display) / 2, SPACESHIP_COLOR);
+	s = spaceship_new ();
 }
 
 void
@@ -67,30 +63,20 @@ blasteroids_shutdown (void)
 }
 
 static void
-blasteroids_draw (void)
+blasteroids_update_graphics (void)
 {
+	al_clear_to_color (al_map_rgb (0, 0, 0));
 	spaceship_draw_ship (s);
-}
-
-static void
-blasteroids_spaceshift_move (void)
-{
-	float sx, sy;
-	spaceship_move (s);
-	spaceship_get_pos (s, &sx, &sy);
-
-	if (sx < 0) sx = 0;
-	if (sx > DISPLAY_WIDTH) sx = DISPLAY_WIDTH;
-	if (sy < 0) sy = 0;
-	if (sy > DISPLAY_HEIGH) sy = DISPLAY_HEIGH;
-
-	spaceship_set_pos (s, sx, sy);
+	blast_draw ();
+	al_flip_display();
 }
 
 static void
 blasteroids_update_logic (void)
 {
-	blasteroids_spaceshift_move ();
+	input_control_spaceship (s);
+	spaceship_calculate_position (s);
+	blast_calculate_position ();
 }
 
 void
@@ -102,58 +88,33 @@ blasteroids_game_loop (void)
 	while (!done)
 		{
 			ALLEGRO_EVENT event;
-			al_wait_for_event(event_queue, &event);
+			al_wait_for_event (event_queue, &event);
 
-			if (event.type == ALLEGRO_EVENT_TIMER)
+			switch (event.type)
 				{
-					redraw = true;
-					//update_logic();
-					blasteroids_update_logic ();
-				}
-			else if (event.type == ALLEGRO_EVENT_KEY_CHAR)
-				{
-					//get_user_input();
-					switch (event.keyboard.keycode)
+					case ALLEGRO_EVENT_KEY_DOWN:
+					case ALLEGRO_EVENT_KEY_UP:
 						{
-						case ALLEGRO_KEY_ESCAPE:
-							{
-								done = true;
-								break;
-							}
-						case ALLEGRO_KEY_LEFT:
-							{
-								spaceship_rotate_left (s, ALLEGRO_PI/30); // 4*
-								break;
-							}
-						case ALLEGRO_KEY_RIGHT:
-							{
-								spaceship_rotate_right (s, ALLEGRO_PI/30);
-								break;
-							}
-						case ALLEGRO_KEY_UP:
-							{
-								spaceship_accelerate (s, 0.4);
-								if (spaceship_get_speed (s) > MAX_SPEED)
-									spaceship_set_speed (s, MAX_SPEED);
-								break;
-							}
-						case ALLEGRO_KEY_DOWN:
-							{
-								spaceship_decelerate (s, 0.4);
-								if (spaceship_get_speed (s) < 0)
-									spaceship_set_speed (s, 0);
-								break;
-							}
+							done = input_get_user_input (&event);
+							break;
+						}
+					case ALLEGRO_EVENT_TIMER:
+						{
+							redraw = true;
+							blasteroids_update_logic ();
+							break;
+						}
+					case ALLEGRO_EVENT_DISPLAY_CLOSE:
+						{
+							done = true;
+							break;
 						}
 				}
 
-			if (redraw && al_is_event_queue_empty(event_queue))
+			if (redraw && al_is_event_queue_empty (event_queue))
 				{
 					redraw = false;
-					al_clear_to_color(al_map_rgb(0, 0, 0));
-					//update_graphics();
-					blasteroids_draw ();
-					al_flip_display();
+					blasteroids_update_graphics ();
 				}
 		}
 }

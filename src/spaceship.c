@@ -2,24 +2,27 @@
 # include <config.h>
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 #include <allegro5/allegro_primitives.h>
-#include <error.h>
-#include <spaceship.h>
+#include <stdlib.h>
+#include "error.h"
+#include "blasteroids.h"
+#include "movement.h"
+#include "spaceship.h"
+
+static float drift_heading = 0.0f;
+static bool is_drifting = true;
 
 Spaceship *
-spaceship_new (float sx, float sy, ALLEGRO_COLOR color)
+spaceship_new (void)
 {
 	Spaceship *s = calloc (1, sizeof (Spaceship));
 	if (s == NULL)
 		error ("Failed to create spaceship object");
 
 	*s = (Spaceship) {
-		.sx    = sx,
-		.sy    = sy,
-		.color = color
+		.sx    = DISPLAY_WIDTH / 2,
+		.sy    = DISPLAY_HEIGH / 2,
+		.color = SPACESHIP_COLOR
 	};
 
 	return s;
@@ -34,15 +37,15 @@ spaceship_free (Spaceship *s)
 }
 
 void
-spaceship_rotate_left (Spaceship *s, float degrees)
+spaceship_rotate_left (Spaceship *s)
 {
-	s->heading -= degrees;
+	s->heading -= SPACESHIP_DEGREE_OF_ROTATION_RADIAN;
 }
 
 void
-spaceship_rotate_right (Spaceship *s, float degrees)
+spaceship_rotate_right (Spaceship *s)
 {
-	s->heading += degrees;
+	s->heading += SPACESHIP_DEGREE_OF_ROTATION_RADIAN;
 }
 
 float
@@ -52,10 +55,28 @@ spaceship_get_heading (Spaceship *s)
 }
 
 void
-spaceship_move (Spaceship *s)
+spaceship_calculate_position (Spaceship *s)
 {
-	s->sy -= s->speed * cos (s->heading);
-	s->sx += s->speed * sin (s->heading);
+	float current_heading;
+
+	current_heading = is_drifting
+		? drift_heading
+		: s->heading;
+
+	movement_calculate_2D_position (&s->sx, &s->sy, current_heading, s->speed);
+	movement_teleport (&s->sx, &s->sy);
+}
+
+void
+spaceship_drift (Spaceship *s)
+{
+	if (s->speed > 0)
+		s->speed -= SPACESHIP_DRIFTING_GRADIENT;
+
+	if (s->speed < 0)
+		s->speed = 0;
+
+	is_drifting = true;
 }
 
 void
@@ -73,27 +94,22 @@ spaceship_get_pos (Spaceship *s, float *sx, float *sy)
 }
 
 void
-spaceship_accelerate (Spaceship *s, float speed)
+spaceship_accelerate (Spaceship *s)
 {
-	s->speed += speed;
+	s->speed += SPACESHIP_ACCELERATION_GRADIENT;
+	if (s->speed > SPACESHIP_MAX_SPEED)
+		s->speed = SPACESHIP_MAX_SPEED;
+
+	drift_heading = s->heading;
+	is_drifting = false;
 }
 
 void
-spaceship_decelerate (Spaceship *s, float speed)
+spaceship_decelerate (Spaceship *s)
 {
-	s->speed -= speed;
-}
-
-float
-spaceship_get_speed (Spaceship *s)
-{
-	return s->speed;
-}
-
-void
-spaceship_set_speed (Spaceship *s, float speed)
-{
-	s->speed = speed;
+	s->speed -= SPACESHIP_ACCELERATION_GRADIENT;
+	if (s->speed < 0.0f)
+		s->speed = 0.0f;
 }
 
 void

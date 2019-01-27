@@ -12,7 +12,11 @@ libblasteroids_la_SOURCES = \
 		blasteroids.c \
 		blasteroids.h \
 		error.c \
-		error.h
+		error.h \
+		input.c \
+		input.h \
+		movement.c \
+		movement.h
 
 libblasteroids_CPPFLAGS = $(ALLEGRO_CFLAGS)
 libblasteroids_LDADD = $(ALLEGRO_LIBS)
