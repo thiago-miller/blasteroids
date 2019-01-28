@@ -6,25 +6,12 @@
 #include <stdlib.h>
 #include "blasteroids.h"
 #include "movement.h"
-#include "list.h"
+#include "listd.h"
 #include "error.h"
 #include "blast.h"
 
 static List *blast_trash = NULL;
 static List *blast_live = NULL;
-
-static Blast *
-blast_new (void)
-{
-	Blast *b = calloc (1, sizeof (Blast));
-	if (b == NULL)
-		error ("Failed to create blast object");
-
-	b->color = BLAST_COLOR;
-	b->speed = BLAST_SPEED;
-
-	return b;
-}
 
 static void
 blast_setup (Blast *b, Spaceship *s)
@@ -34,6 +21,20 @@ blast_setup (Blast *b, Spaceship *s)
 	spaceship_get_pos (s, &b->sx, &b->sy);
 	movement_calculate_2D_position (&b->sx, &b->sy,
 			b->heading, BLAST_PADDING);
+}
+
+static Blast *
+blast_new (Spaceship *s)
+{
+	Blast *b = calloc (1, sizeof (Blast));
+	if (b == NULL)
+		error ("Failed to create blast object");
+
+	b->color = BLAST_COLOR;
+	b->speed = BLAST_SPEED;
+
+	blast_setup (b, s);
+	return b;
 }
 
 static void
@@ -72,28 +73,20 @@ void
 blast_calculate_position (void)
 {
 	List *cur = blast_live;
-	List *prev = NULL;
-	List *next = NULL;
 
 	while (cur != NULL)
 		{
-			next = list_next (cur);
+			List *next = list_next (cur);
 
 			Blast *b = list_data (cur);
 			_blast_calculate_position (b);
 
 			if (b->gone)
 				{
-					if (prev == NULL)
-						blast_live = next;
-					else
-						cur = list_rem_next (prev);
-
-					blast_trash = list_ins_next (blast_trash, cur, b);
-					cur = prev;
+					blast_live = list_remove_link (blast_live, cur);
+					blast_trash = list_concat (cur, blast_trash);
 				}
 
-			prev = cur;
 			cur = next;
 		}
 }
@@ -101,26 +94,16 @@ blast_calculate_position (void)
 void
 blast_fire (Spaceship *s)
 {
-	Blast *b = NULL;
-	List *cur = NULL;
-
 	if (blast_trash == NULL)
-		b = blast_new ();
-	else
 		{
-			cur = list_rem_next (blast_trash);
-
-			if (cur == NULL)
-				{
-					cur = blast_trash;
-					blast_trash = NULL;
-				}
-
-			b = cur->data;
+			blast_live = list_ins_prev (blast_live, blast_new (s));
+			return;
 		}
 
-	blast_setup (b, s);
-	blast_live = list_ins_next (blast_live, cur, b);
+	List *shift = blast_trash;
+	blast_trash = list_remove_link (blast_trash, shift);
+	blast_setup (list_data (shift), s);
+	blast_live = list_concat (shift, blast_live);
 }
 
 static void
@@ -138,10 +121,6 @@ _blast_draw (Blast *b)
 void
 blast_draw (void)
 {
-	List *cur = blast_live;
-	while (cur != NULL)
-		{
-			_blast_draw (list_data (cur));
-			cur = list_next (cur);
-		}
+	for (List *cur = blast_live; cur != NULL; cur = list_next (cur))
+		_blast_draw (list_data (cur));
 }
