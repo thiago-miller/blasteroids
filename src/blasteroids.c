@@ -3,6 +3,7 @@
 #endif
 
 #include <allegro5/allegro5.h>
+#include <allegro5/allegro_primitives.h>
 #include "spaceship.h"
 #include "blast.h"
 #include "input.h"
@@ -20,6 +21,9 @@ blasteroids_init (void)
 {
 	if (!al_init ())
 		error ("Failed to initialize allegro");
+
+	if (!al_init_primitives_addon ())
+		error ("Failed to initialize primitives addon");
 
 	if (!al_install_keyboard ())
 		error ("Failed to install keyboard");

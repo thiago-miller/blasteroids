@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include "blasteroids.h"
 #include "movement.h"
-#include "listd.h"
+#include "list.h"
 #include "error.h"
 #include "blast.h"
 
@@ -91,19 +91,22 @@ blast_calculate_position (void)
 		}
 }
 
+static List *
+blast_trash_recycle (Spaceship *s)
+{
+	List *shift = blast_trash;
+	blast_trash = list_remove_link (blast_trash, shift);
+	blast_setup (list_data (shift), s);
+	return shift;
+}
+
 void
 blast_fire (Spaceship *s)
 {
 	if (blast_trash == NULL)
-		{
-			blast_live = list_ins_prev (blast_live, blast_new (s));
-			return;
-		}
-
-	List *shift = blast_trash;
-	blast_trash = list_remove_link (blast_trash, shift);
-	blast_setup (list_data (shift), s);
-	blast_live = list_concat (shift, blast_live);
+		blast_live = list_ins_prev (blast_live, blast_new (s));
+	else
+		blast_live = list_concat (blast_trash_recycle (s), blast_live);
 }
 
 static void

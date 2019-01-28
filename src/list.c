@@ -11,7 +11,7 @@ list_new (void)
 {
 	List *l = calloc (1, sizeof (List));
 	if (l == NULL)
-		error ("Failed to create list object");
+		error ("Failed head create list object");
 	return l;
 }
 
@@ -24,7 +24,7 @@ list_free (List *l, list_clean_data_fun clean_fun)
 		{
 			List *next = cur->next;
 
-			if (clean_fun != NULL && cur->data != NULL)
+			if (clean_fun != NULL)
 				clean_fun (cur->data);
 
 			free (cur);
@@ -33,36 +33,83 @@ list_free (List *l, list_clean_data_fun clean_fun)
 }
 
 List *
-list_ins_next (List *to, List *from, void *data)
+list_concat (List *l1, List *l2)
 {
-	if (from == NULL)
-		from = list_new ();
+	if (l1 == l2)
+		return l1;
 
-	from->next = NULL;
-	from->data = data;
+	if (l1 == NULL)
+		return l2;
 
-	if (to == NULL)
-		return from;
+	if (l2 == NULL)
+		return l1;
 
-	from->next = to->next;
-	to->next = from;
+	l1->next = l2;
+	l2->prev = l1;
 
-	return to;
+	return l1;
 }
 
 List *
-list_rem_next (List *from)
+list_ins_next (List *head, void *data)
 {
-	if (from == NULL)
+	List *l = list_new ();
+	l->data = data;
+
+	if (head == NULL)
+		return l;
+
+	l->next = head->next;
+	l->prev = head;
+
+	if (head->next != NULL)
+		head->next->prev = l;
+
+	head->next = l;
+
+	return head;
+}
+
+List *
+list_ins_prev (List *head, void *data)
+{
+	List *l = list_new ();
+	l->data = data;
+
+	if (head == NULL)
+		return l;
+
+	l->prev = head->prev;
+	l->next = head;
+
+	if (head->prev != NULL)
+		head->prev->next = l;
+
+	head->prev = l;
+
+	return l;
+}
+
+List *
+list_remove_link (List *head, List *l)
+{
+	if (head == NULL)
 		return NULL;
 
-	List *rem = from->next;
+	if (l == NULL)
+		return head;
 
-	if (rem == NULL)
-		return NULL;
+	if (head == l)
+		head = head->next;
 
-	from->next = rem->next;
-	rem->next = NULL;
+	if (l->prev != NULL)
+		l->prev->next = l->next;
 
-	return rem;
+	if (l->next != NULL)
+		l->next->prev = l->prev;
+
+	l->next = NULL;
+	l->prev = NULL;
+
+	return head;
 }
