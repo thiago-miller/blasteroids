@@ -19,7 +19,7 @@ typedef struct
 } Blast;
 
 void blast_fire (Spaceship *s);
-void blast_free (Blast *b);
+void blast_free (void);
 void blast_calculate_position (void);
 void blast_draw (void);
 

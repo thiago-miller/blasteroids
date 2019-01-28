@@ -60,6 +60,8 @@ blasteroids_shutdown (void)
 
 	if (s)
 		spaceship_free (s);
+
+	blast_free ();
 }
 
 static void
