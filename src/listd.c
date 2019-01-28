@@ -35,6 +35,9 @@ list_free (List *l, list_clean_data_fun clean_fun)
 List *
 list_concat (List *l1, List *l2)
 {
+	if (l1 == l2)
+		return l1;
+
 	if (l1 == NULL)
 		return l2;
 
