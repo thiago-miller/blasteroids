@@ -6,6 +6,7 @@
 #include <allegro5/allegro_primitives.h>
 #include "spaceship.h"
 #include "blast.h"
+#include "asteroid.h"
 #include "input.h"
 #include "error.h"
 #include "blasteroids.h"
@@ -15,6 +16,7 @@ static ALLEGRO_EVENT_QUEUE* event_queue;
 static ALLEGRO_TIMER* timer;
 static ALLEGRO_DISPLAY* display;
 static Spaceship *s;
+static Asteroid *a;
 
 void
 blasteroids_init (void)
@@ -48,6 +50,7 @@ blasteroids_init (void)
 	done = false;
 
 	s = spaceship_new ();
+	a = asteroid_new ();
 }
 
 void
@@ -66,6 +69,8 @@ blasteroids_shutdown (void)
 		spaceship_free (s);
 
 	blast_free ();
+
+	asteroid_free (a);
 }
 
 static void
@@ -74,6 +79,7 @@ blasteroids_update_graphics (void)
 	al_clear_to_color (al_map_rgb (0, 0, 0));
 	spaceship_draw_ship (s);
 	blast_draw ();
+	asteroid_draw (a);
 	al_flip_display();
 }
 
@@ -83,6 +89,7 @@ blasteroids_update_logic (void)
 	input_control_spaceship (s);
 	spaceship_calculate_position (s);
 	blast_calculate_position ();
+	asteroid_calculate_position (a);
 }
 
 void

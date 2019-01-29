@@ -18,7 +18,9 @@ libblasteroids_la_SOURCES = \
 		movement.c \
 		movement.h \
 		list.c \
-		list.h
+		list.h \
+		asteroid.c \
+		asteroid.h
 
 libblasteroids_CPPFLAGS = $(ALLEGRO_CFLAGS)
 libblasteroids_LDADD = $(ALLEGRO_LIBS)
