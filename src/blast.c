@@ -6,19 +6,26 @@
 #include <stdlib.h>
 #include "blasteroids.h"
 #include "movement.h"
-#include "list.h"
 #include "error.h"
 #include "blast.h"
 
 static List *blast_trash = NULL;
 static List *blast_live = NULL;
+static int interval = BLAST_INTERVAL;
+
+List *
+blast_get_list (void)
+{
+	return blast_live;
+}
 
 static void
 blast_setup (Blast *b, Spaceship *s)
 {
 	b->gone = false;
 	b->heading = spaceship_get_heading (s);
-	spaceship_get_pos (s, &b->sx, &b->sy);
+	b->sx = spaceship_get_sx (s);
+	b->sy = spaceship_get_sy (s);
 	movement_calculate_2D_position (&b->sx, &b->sy,
 			b->heading, BLAST_PADDING);
 }
@@ -30,8 +37,9 @@ blast_new (Spaceship *s)
 	if (b == NULL)
 		error ("Failed to create blast object");
 
-	b->color = BLAST_COLOR;
-	b->speed = BLAST_SPEED;
+	b->color  = BLAST_COLOR;
+	b->speed  = BLAST_SPEED;
+	b->radius = BLAST_RADIUS;
 
 	blast_setup (b, s);
 	return b;
@@ -50,6 +58,12 @@ blast_free (void)
 {
 	list_free (blast_live, (list_clean_data_fun) _blast_free);
 	list_free (blast_trash, (list_clean_data_fun) _blast_free);
+}
+
+void
+blast_die (Blast *b)
+{
+	b->gone = true;
 }
 
 static void
@@ -103,10 +117,15 @@ blast_trash_recycle (Spaceship *s)
 void
 blast_fire (Spaceship *s)
 {
-	if (blast_trash == NULL)
-		blast_live = list_ins_prev (blast_live, blast_new (s));
-	else
-		blast_live = list_concat (blast_trash_recycle (s), blast_live);
+	interval--;
+	if (interval == 0)
+		{
+			interval = BLAST_INTERVAL;
+			if (blast_trash == NULL)
+				blast_live = list_ins_prev (blast_live, blast_new (s));
+			else
+				blast_live = list_concat (blast_trash_recycle (s), blast_live);
+		}
 }
 
 static void

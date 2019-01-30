@@ -8,6 +8,7 @@
 #include "blast.h"
 #include "asteroid.h"
 #include "input.h"
+#include "collision.h"
 #include "error.h"
 #include "blasteroids.h"
 
@@ -88,6 +89,7 @@ blasteroids_update_logic (void)
 	blast_calculate_position ();
 	asteroid_control ();
 	asteroid_calculate_position ();
+	collision_detection ();
 }
 
 void

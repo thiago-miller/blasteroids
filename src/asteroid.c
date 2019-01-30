@@ -6,13 +6,18 @@
 #include <stdlib.h>
 #include "blasteroids.h"
 #include "movement.h"
-#include "list.h"
 #include "error.h"
 #include "asteroid.h"
 
 static List *asteroid_trash = NULL;
 static List *asteroid_live = NULL;
 static long tick_acm = 0;
+
+List *
+asteroid_get_list (void)
+{
+	return asteroid_live;
+}
 
 static void
 asteroid_setup (Asteroid *a)
@@ -59,6 +64,7 @@ asteroid_setup (Asteroid *a)
 	*a = (Asteroid) {
 		.sx           = sx,
 		.sy           = sy,
+		.radius       = ASTEROID_RADIUS,
 		.scale        = 1,
 		.heading      = heading,
 		.rot_velocity = rot_velocity,
@@ -93,6 +99,12 @@ asteroid_free (void)
 	list_free (asteroid_trash, (list_clean_data_fun) _asteroid_free);
 }
 
+void
+asteroid_die (Asteroid *a)
+{
+	a->gone = true;
+}
+
 static List *
 asteroid_trash_recycle (void)
 {
@@ -108,8 +120,9 @@ asteroid_control (void)
 	// Update ticks
 	tick_acm ++;
 
-	if (!(tick_acm % (FPS * ASTEROID_RATE_SEC)) || asteroid_live == NULL)
+	if (!(tick_acm % ASTEROID_RATE_SEC) || asteroid_live == NULL)
 		{
+			tick_acm = 0;
 			if (asteroid_trash == NULL)
 				asteroid_live = list_ins_prev (asteroid_live, asteroid_new ());
 			else
@@ -136,6 +149,12 @@ asteroid_calculate_position (void)
 
 			Asteroid *a = list_data (cur);
 			_asteroid_calculate_position (a);
+
+			if (a->gone)
+				{
+					asteroid_live = list_remove_link (asteroid_live, cur);
+					asteroid_trash = list_concat (cur, asteroid_trash);
+				}
 
 			cur = next;
 		}

@@ -20,9 +20,10 @@ spaceship_new (void)
 		error ("Failed to create spaceship object");
 
 	*s = (Spaceship) {
-		.sx    = DISPLAY_WIDTH / 2,
-		.sy    = DISPLAY_HEIGH / 2,
-		.color = SPACESHIP_COLOR
+		.sx     = DISPLAY_WIDTH / 2,
+		.sy     = DISPLAY_HEIGH / 2,
+		.radius = SPACESHIP_RADIUS,
+		.color  = SPACESHIP_COLOR
 	};
 
 	return s;
@@ -37,6 +38,12 @@ spaceship_free (Spaceship *s)
 }
 
 void
+spaceship_die (Spaceship *s)
+{
+	s->gone = true;
+}
+
+void
 spaceship_rotate_left (Spaceship *s)
 {
 	s->heading -= SPACESHIP_DEGREE_OF_ROTATION_RADIAN;
@@ -46,12 +53,6 @@ void
 spaceship_rotate_right (Spaceship *s)
 {
 	s->heading += SPACESHIP_DEGREE_OF_ROTATION_RADIAN;
-}
-
-float
-spaceship_get_heading (Spaceship *s)
-{
-	return s->heading;
 }
 
 void
@@ -77,20 +78,6 @@ spaceship_drift (Spaceship *s)
 		s->speed = 0;
 
 	is_drifting = true;
-}
-
-void
-spaceship_set_pos (Spaceship *s, float sx, float sy)
-{
-	s->sx = sx;
-	s->sy = sy;
-}
-
-void
-spaceship_get_pos (Spaceship *s, float *sx, float *sy)
-{
-	*sx = s->sx;
-	*sy = s->sy;
 }
 
 void
