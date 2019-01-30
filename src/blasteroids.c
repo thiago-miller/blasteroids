@@ -16,11 +16,12 @@ static ALLEGRO_EVENT_QUEUE* event_queue;
 static ALLEGRO_TIMER* timer;
 static ALLEGRO_DISPLAY* display;
 static Spaceship *s;
-static Asteroid *a;
 
 void
 blasteroids_init (void)
 {
+	srand (time (NULL));
+
 	if (!al_init ())
 		error ("Failed to initialize allegro");
 
@@ -50,7 +51,6 @@ blasteroids_init (void)
 	done = false;
 
 	s = spaceship_new ();
-	a = asteroid_new ();
 }
 
 void
@@ -70,7 +70,7 @@ blasteroids_shutdown (void)
 
 	blast_free ();
 
-	asteroid_free (a);
+	asteroid_free ();
 }
 
 static void
@@ -79,7 +79,7 @@ blasteroids_update_graphics (void)
 	al_clear_to_color (al_map_rgb (0, 0, 0));
 	spaceship_draw_ship (s);
 	blast_draw ();
-	asteroid_draw (a);
+	asteroid_draw ();
 	al_flip_display();
 }
 
@@ -89,7 +89,8 @@ blasteroids_update_logic (void)
 	input_control_spaceship (s);
 	spaceship_calculate_position (s);
 	blast_calculate_position ();
-	asteroid_calculate_position (a);
+	asteroid_control ();
+	asteroid_calculate_position ();
 }
 
 void

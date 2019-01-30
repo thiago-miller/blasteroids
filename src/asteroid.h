@@ -18,11 +18,12 @@ typedef struct
 
 #define ASTEROID_COLOR al_map_rgb (255, 255, 255)
 #define ASTEROID_SPEED 1.0f
+#define ASTEROID_RATE_SEC 5
 #define ASTEROID_ROT_VELOCITY ALLEGRO_PI / 270
 
-Asteroid * asteroid_new                (void);
-void       asteroid_free               (Asteroid *a);
-void       asteroid_calculate_position (Asteroid *a);
-void       asteroid_draw               (Asteroid *a);
+void asteroid_control            (void);
+void asteroid_free               (void);
+void asteroid_calculate_position (void);
+void asteroid_draw               (void);
 
 #endif /* asteroid.h */
