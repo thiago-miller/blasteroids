@@ -4,6 +4,7 @@
 #include <allegro5/allegro.h>
 
 #define SPACESHIP_COLOR al_map_rgb (0, 100, 0)
+#define SPACESHIP_RADIUS 10
 #define SPACESHIP_MAX_SPEED 4.0f
 #define SPACESHIP_ACCELERATION_GRADIENT 0.05f
 #define SPACESHIP_DRIFTING_GRADIENT 0.025f

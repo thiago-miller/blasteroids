@@ -17,6 +17,7 @@ typedef struct
 } Asteroid;
 
 #define ASTEROID_COLOR al_map_rgb (255, 255, 255)
+#define ASTEROID_RADIUS 25
 #define ASTEROID_SPEED 1.0f
 #define ASTEROID_RATE_SEC 5
 #define ASTEROID_ROT_VELOCITY ALLEGRO_PI / 270

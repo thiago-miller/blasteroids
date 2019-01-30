@@ -162,6 +162,7 @@ _asteroid_draw (Asteroid *a)
 	al_draw_line(20, 10, 10, 20, a->color, 2.0f);
 	al_draw_line(10, 20, 0, 15, a->color, 2.0f);
 	al_draw_line(0, 15, -20, 20, a->color, 2.0f);
+	/*al_draw_circle (0, 0, 25, al_map_rgb (200, 50, 200), 2.0f);*/
 }
 
 void

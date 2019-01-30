@@ -117,8 +117,8 @@ _blast_draw (Blast *b)
 	al_rotate_transform (&transform, b->heading);
 	al_translate_transform (&transform, b->sx, b->sy);
 	al_use_transform (&transform);
-
 	al_draw_line(0, 0, 0, -3, b->color, 2.0f);
+	/*al_draw_circle (0, 0, 2, al_map_rgb (50, 50, 200), 2.0f);*/
 }
 
 void

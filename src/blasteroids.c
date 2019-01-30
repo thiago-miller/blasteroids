@@ -57,7 +57,7 @@ void
 blasteroids_shutdown (void)
 {
 	if (timer)
-		al_destroy_timer(timer);
+		al_destroy_timer (timer);
 
 	if (display)
 		al_destroy_display (display);
@@ -65,11 +65,8 @@ blasteroids_shutdown (void)
 	if (event_queue)
 		al_destroy_event_queue (event_queue);
 
-	if (s)
-		spaceship_free (s);
-
+	spaceship_free (s);
 	blast_free ();
-
 	asteroid_free ();
 }
 

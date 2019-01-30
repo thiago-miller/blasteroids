@@ -124,4 +124,5 @@ spaceship_draw_ship (Spaceship *s)
 	al_draw_line (0, -11, 8, 9, s->color, 3.0f);
 	al_draw_line (-6, 4, -1, 4, s->color, 3.0f);
 	al_draw_line (6, 4, 1, 4, s->color, 3.0f);
+	/*al_draw_circle (0, 0, 10, al_map_rgb (50, 50, 200), 2.0f);*/
 }
