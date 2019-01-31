@@ -16,11 +16,11 @@ typedef struct
 	ALLEGRO_COLOR color;
 } Blast;
 
-#define BLAST_COLOR al_map_rgb (255, 0, 0)
+#define BLAST_COLOR al_map_rgb (255, 69, 0)
 #define BLAST_RADIUS 2
 #define BLAST_SPEED (SPACESHIP_MAX_SPEED) * 3
 #define BLAST_PADDING 11
-#define BLAST_INTERVAL 8
+#define BLAST_INTERVAL 4
 
 List * blast_get_list           (void);
 void   blast_die                (Blast *b);

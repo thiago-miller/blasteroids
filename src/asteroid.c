@@ -19,6 +19,29 @@ asteroid_get_list (void)
 	return asteroid_live;
 }
 
+static Asteroid *
+asteroid_new (void)
+{
+	Asteroid *a = calloc (1, sizeof (Asteroid));
+	if (a == NULL)
+		error ("Failed to create asteroid object");
+
+	*a = (Asteroid) {
+		.color = ASTEROID_COLOR,
+		.speed = ASTEROID_SPEED
+	};
+
+	return a;
+}
+
+static List *
+asteroid_trash_recycle (void)
+{
+	List *shift = asteroid_trash;
+	asteroid_trash = list_remove_link (asteroid_trash, shift);
+	return shift;
+}
+
 static void
 asteroid_setup (Asteroid *a)
 {
@@ -61,27 +84,48 @@ asteroid_setup (Asteroid *a)
 	if (rand () % 2)
 		rot_velocity *= -1;
 
-	*a = (Asteroid) {
-		.sx           = sx,
-		.sy           = sy,
-		.radius       = ASTEROID_RADIUS,
-		.scale        = 1,
-		.heading      = heading,
-		.rot_velocity = rot_velocity,
-		.speed        = ASTEROID_SPEED,
-		.color        = ASTEROID_COLOR
-	};
+	a->sx = sx;
+	a->sy = sy;
+	a->radius = ASTEROID_RADIUS;
+	a->scale = 1;
+	a->heading = heading;
+	a->rot_velocity = rot_velocity;
+	a->gone = false;
 }
 
-static Asteroid *
-asteroid_new (void)
+static void
+asteroid_split (Asteroid *a1)
 {
-	Asteroid *a = calloc (1, sizeof (Asteroid));
-	if (a == NULL)
-		error ("Failed to create asteroid object");
+	Asteroid *a2 = NULL;
 
-	asteroid_setup (a);
-	return a;
+	if (asteroid_trash == NULL)
+		{
+			a2 = asteroid_new ();
+			asteroid_live = list_ins_prev (asteroid_live, a2);
+		}
+	else
+		{
+			List *l = asteroid_trash_recycle ();
+			a2 = list_data (l);
+			asteroid_live = list_concat (l, asteroid_live);
+		}
+
+	a2->gone = false;
+	a2->heading = a1->heading - ALLEGRO_PI/12;
+	a2->scale = 0.5;
+	a2->radius = ASTEROID_RADIUS/2;
+	a2->rot_velocity = a1->rot_velocity * - 1;
+	a2->sx = a1->sx;
+	a2->sy = a1->sy;
+	movement_calculate_2D_position (&a2->sx, &a2->sy,
+			a2->heading, -11);
+
+	a1->gone = false;
+	a1->heading += ALLEGRO_PI/12;
+	a1->scale = 0.5;
+	a1->radius = ASTEROID_RADIUS/2;
+	movement_calculate_2D_position (&a1->sx, &a1->sy,
+			a1->heading, 11);
 }
 
 static void
@@ -105,15 +149,6 @@ asteroid_die (Asteroid *a)
 	a->gone = true;
 }
 
-static List *
-asteroid_trash_recycle (void)
-{
-	List *shift = asteroid_trash;
-	asteroid_trash = list_remove_link (asteroid_trash, shift);
-	asteroid_setup (list_data (shift));
-	return shift;
-}
-
 void
 asteroid_control (void)
 {
@@ -124,9 +159,17 @@ asteroid_control (void)
 		{
 			tick_acm = 0;
 			if (asteroid_trash == NULL)
-				asteroid_live = list_ins_prev (asteroid_live, asteroid_new ());
+				{
+					Asteroid *a = asteroid_new ();
+					asteroid_setup (a);
+					asteroid_live = list_ins_prev (asteroid_live, a);
+				}
 			else
-				asteroid_live = list_concat (asteroid_trash_recycle (), asteroid_live);
+				{
+					List *l = asteroid_trash_recycle ();
+					asteroid_setup (list_data (l));
+					asteroid_live = list_concat (l, asteroid_live);
+				}
 		}
 }
 
@@ -152,8 +195,13 @@ asteroid_calculate_position (void)
 
 			if (a->gone)
 				{
-					asteroid_live = list_remove_link (asteroid_live, cur);
-					asteroid_trash = list_concat (cur, asteroid_trash);
+					if (a->scale == 1)
+						asteroid_split (a);
+					else
+						{
+							asteroid_live = list_remove_link (asteroid_live, cur);
+							asteroid_trash = list_concat (cur, asteroid_trash);
+						}
 				}
 
 			cur = next;
