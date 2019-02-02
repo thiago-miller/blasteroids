@@ -2,19 +2,19 @@
 #define ASTEROID_H
 
 #include <allegro5/allegro.h>
-#include "list.h"
+#include "recycle.h"
 
 typedef struct
 {
-	float sx;
-	float sy;
-	float radius;
-	float heading;
-	float twist;
-	float speed;
-	float rot_velocity;
-	float scale;
-	int gone;
+	float         sx;
+	float         sy;
+	float         radius;
+	float         heading;
+	float         twist;
+	float         speed;
+	float         rot_velocity;
+	float         scale;
+	int           gone;
 	ALLEGRO_COLOR color;
 } Asteroid;
 
@@ -24,12 +24,13 @@ typedef struct
 #define ASTEROID_RATE_SEC (FPS * 5)
 #define ASTEROID_ROT_VELOCITY (ALLEGRO_PI / 270)
 
-List * asteroid_get_list           (void);
-void   asteroid_die                (Asteroid *a);
-void   asteroid_control            (void);
-void   asteroid_free               (void);
-void   asteroid_calculate_position (void);
-void   asteroid_draw               (void);
+ListElmt * asteroid_get_list_head      (void);
+void       asteroid_die                (Asteroid *a);
+void       asteroid_control            (void);
+void       asteroid_free               (void);
+void       asteroid_calculate_position (void);
+void       asteroid_draw               (void);
+void       asteroid_init               (void);
 
 #define asteroid_get_sx(a) (a->sx)
 #define asteroid_get_sy(a) (a->sy)

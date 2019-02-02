@@ -20,10 +20,10 @@ has_collision (float rad1, float sx1, float sy1,
 void
 collision_detection (void)
 {
-	for (List *cur_a = asteroid_get_list (); cur_a != NULL; cur_a = list_next (cur_a))
+	for (ListElmt *cur_a = asteroid_get_list_head (); cur_a != NULL; cur_a = list_next (cur_a))
 		{
 			Asteroid *a = list_data (cur_a);
-			for (List *cur_b = blast_get_list (); cur_b != NULL; cur_b = list_next (cur_b))
+			for (ListElmt *cur_b = blast_get_list_head (); cur_b != NULL; cur_b = list_next (cur_b))
 				{
 					Blast *b = list_data (cur_b);
 					if (has_collision (asteroid_get_radius (a), asteroid_get_sx (a),

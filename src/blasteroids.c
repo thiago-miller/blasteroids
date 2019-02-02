@@ -52,6 +52,8 @@ blasteroids_init (void)
 	done = false;
 
 	s = spaceship_new ();
+	blast_init ();
+	asteroid_init ();
 }
 
 void

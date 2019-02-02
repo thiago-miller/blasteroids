@@ -9,14 +9,13 @@
 #include "error.h"
 #include "blast.h"
 
-static List *blast_trash = NULL;
-static List *blast_live = NULL;
+static Recycle *recycle = NULL;
 static int interval = BLAST_INTERVAL;
 
-List *
-blast_get_list (void)
+ListElmt *
+blast_get_list_head (void)
 {
-	return blast_live;
+	return recycle_list_head (recycle);
 }
 
 static void
@@ -31,7 +30,7 @@ blast_setup (Blast *b, Spaceship *s)
 }
 
 static Blast *
-blast_new (Spaceship *s)
+blast_new (void)
 {
 	Blast *b = calloc (1, sizeof (Blast));
 	if (b == NULL)
@@ -43,7 +42,6 @@ blast_new (Spaceship *s)
 		.radius = BLAST_RADIUS
 	};
 
-	blast_setup (b, s);
 	return b;
 }
 
@@ -58,8 +56,7 @@ _blast_free (Blast *b)
 void
 blast_free (void)
 {
-	list_free (blast_live, (list_clean_data_fun) _blast_free);
-	list_free (blast_trash, (list_clean_data_fun) _blast_free);
+	recycle_free (recycle);
 }
 
 void
@@ -88,32 +85,20 @@ _blast_calculate_position (Blast *b)
 void
 blast_calculate_position (void)
 {
-	List *cur = blast_live;
+	ListElmt *cur = recycle_list_head (recycle);
 
 	while (cur != NULL)
 		{
-			List *next = list_next (cur);
+			ListElmt *next = list_next (cur);
 
 			Blast *b = list_data (cur);
 			_blast_calculate_position (b);
 
 			if (b->gone)
-				{
-					blast_live = list_remove_link (blast_live, cur);
-					blast_trash = list_concat (cur, blast_trash);
-				}
+				recycle_remove_list_element (recycle, cur);
 
 			cur = next;
 		}
-}
-
-static List *
-blast_trash_recycle (Spaceship *s)
-{
-	List *shift = blast_trash;
-	blast_trash = list_remove_link (blast_trash, shift);
-	blast_setup (list_data (shift), s);
-	return shift;
 }
 
 void
@@ -123,10 +108,7 @@ blast_fire (Spaceship *s)
 	if (interval == 0)
 		{
 			interval = BLAST_INTERVAL;
-			if (blast_trash == NULL)
-				blast_live = list_ins_prev (blast_live, blast_new (s));
-			else
-				blast_live = list_concat (blast_trash_recycle (s), blast_live);
+			blast_setup (list_data (recycle_get_list_element (recycle)), s);
 		}
 }
 
@@ -145,6 +127,13 @@ _blast_draw (Blast *b)
 void
 blast_draw (void)
 {
-	for (List *cur = blast_live; cur != NULL; cur = list_next (cur))
+	for (ListElmt *cur = recycle_list_head (recycle); cur != NULL; cur = list_next (cur))
 		_blast_draw (list_data (cur));
+}
+
+void
+blast_init (void)
+{
+	recycle = recycle_new ((RecycleCreate)blast_new,
+			(RecycleDestroy)_blast_free);
 }

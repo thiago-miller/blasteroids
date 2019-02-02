@@ -2,114 +2,209 @@
 # include <config.h>
 #endif
 
-#include <stdlib.h>
 #include "error.h"
 #include "list.h"
 
 List *
-list_new (void)
+list_new (ListDestroy destroy_fun)
 {
-	List *l = calloc (1, sizeof (List));
-	if (l == NULL)
-		error ("Failed head create list object");
-	return l;
+	List *list = malloc (sizeof (List));
+	if (list == NULL)
+		error ("Failed to create List");
+
+	*list = (List) {
+		.size        = 0,
+		.head        = NULL,
+		.tail        = NULL,
+		.destroy_fun = destroy_fun
+	};
+
+	return list;
+}
+
+static ListElmt *
+list_element_new (const void *data)
+{
+	ListElmt *element = malloc (sizeof (ListElmt));
+	if (element == NULL)
+		error ("Failed to create ListElmt");
+
+	*element = (ListElmt) {
+		.next = NULL,
+		.prev = NULL,
+		.data = (void*) data
+	};
+
+	return element;
+}
+
+bool
+list_append (List *list, const void *data)
+{
+	return list_ins_next (list, list->tail, data);
+}
+
+bool
+list_append_link (List *list, ListElmt *element)
+{
+	return list_ins_next_link (list, list->tail, element);
+}
+
+bool
+list_prepend (List *list, const void *data)
+{
+	return list_ins_prev (list, list->head, data);
+}
+
+bool
+list_prepend_link (List *list, ListElmt *element)
+{
+	return list_ins_prev_link (list, list->head, element);
+}
+
+bool
+list_ins_next (List *list, ListElmt *element, const void *data)
+{
+	ListElmt *new_element = list_element_new (data);
+	bool ok = list_ins_next_link (list, element, new_element);
+
+	if (!ok)
+		free (new_element);
+
+	return ok;
+}
+
+bool
+list_ins_next_link (List *list, ListElmt *element, ListElmt *new_element)
+{
+	// Do not allow a NULL element unless the list is empty
+	// Do nor allow a NULL new_element
+	if ((element == NULL && list->size != 0) || new_element == NULL)
+		return false;
+
+	if (list->size == 0)
+		{
+			// Handle insertion when the list is empty
+			list->head = new_element;
+			list->tail = new_element;
+		}
+	else
+		{
+			// Handle insertion when the list is not empty
+			new_element->next = element->next;
+			new_element->prev = element;
+
+			if (element->next == NULL)
+				list->tail = new_element;
+			else
+				element->next->prev = new_element;
+
+			element->next = new_element;
+		}
+
+	list->size++;
+	return true;
+}
+
+bool
+list_ins_prev (List *list, ListElmt *element, const void *data)
+{
+	ListElmt *new_element = list_element_new (data);
+	bool ok = list_ins_prev_link (list, element, new_element);
+
+	if (!ok)
+		free (new_element);
+
+	return ok;
+}
+
+bool
+list_ins_prev_link (List *list, ListElmt *element, ListElmt *new_element)
+{
+	// Do not allow a NULL element unless the list is empty
+	// Do nor allow a NULL new_element
+	if ((element == NULL && list->size != 0) || new_element == NULL)
+		return false;
+
+	if (list->size == 0)
+		{
+			// Handle insertion when the list is empty
+			list->head = new_element;
+			list->tail = new_element;
+		}
+	else
+		{
+			// Handle insertion when the list is not empty
+			new_element->next = element;
+			new_element->prev = element->prev;
+
+			if (element->prev == NULL)
+				list->head = new_element;
+			else
+				element->prev->next = new_element;
+
+			element->prev = new_element;
+		}
+
+	list->size++;
+	return true;
 }
 
 void
-list_free (List *l, list_clean_data_fun clean_fun)
+list_free (List *list)
 {
-	List *cur = l;
-
-	while (cur != NULL)
+	while (list->size > 0)
 		{
-			List *next = cur->next;
-
-			if (clean_fun != NULL)
-				clean_fun (cur->data);
-
-			free (cur);
-			cur = next;
+			void *data;
+			if (list_remove (list, list->tail, &data) && list->destroy_fun != NULL)
+				list->destroy_fun (data);
 		}
+
+	free (list);
 }
 
-List *
-list_concat (List *l1, List *l2)
+bool
+list_remove (List *list, ListElmt *element, void **data)
 {
-	if (l1 == l2)
-		return l1;
+	if (!list_remove_link (list, element))
+		return false;
 
-	if (l1 == NULL)
-		return l2;
+	if (data != NULL)
+		*data = element->data;
 
-	if (l2 == NULL)
-		return l1;
-
-	l1->next = l2;
-	l2->prev = l1;
-
-	return l1;
+	free (element);
+	return true;
 }
 
-List *
-list_ins_next (List *head, void *data)
+bool
+list_remove_link (List *list, ListElmt *element)
 {
-	List *l = list_new ();
-	l->data = data;
+	if (list->size == 0 || element == NULL)
+		return false;
 
-	if (head == NULL)
-		return l;
+	if (element == list->head)
+		{
+			// Handle removal from the head of the list
+			list->head = element->next;
+			if (list->head == NULL)
+				list->tail = NULL;
+			else
+				element->next->prev = NULL;
+		}
+	else
+		{
+			// Handle removal from other than the head of the list
+			element->prev->next = element->next;
 
-	l->next = head->next;
-	l->prev = head;
+			if (element->next == NULL)
+				list->tail = element->prev;
+			else
+				element->next->prev = element->prev;
+		}
 
-	if (head->next != NULL)
-		head->next->prev = l;
+	element->prev = NULL;
+	element->next = NULL;
 
-	head->next = l;
-
-	return head;
-}
-
-List *
-list_ins_prev (List *head, void *data)
-{
-	List *l = list_new ();
-	l->data = data;
-
-	if (head == NULL)
-		return l;
-
-	l->prev = head->prev;
-	l->next = head;
-
-	if (head->prev != NULL)
-		head->prev->next = l;
-
-	head->prev = l;
-
-	return l;
-}
-
-List *
-list_remove_link (List *head, List *l)
-{
-	if (head == NULL)
-		return NULL;
-
-	if (l == NULL)
-		return head;
-
-	if (head == l)
-		head = head->next;
-
-	if (l->prev != NULL)
-		l->prev->next = l->next;
-
-	if (l->next != NULL)
-		l->next->prev = l->prev;
-
-	l->next = NULL;
-	l->prev = NULL;
-
-	return head;
+	list->size--;
+	return true;
 }

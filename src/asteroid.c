@@ -9,14 +9,13 @@
 #include "error.h"
 #include "asteroid.h"
 
-static List *asteroid_trash = NULL;
-static List *asteroid_live = NULL;
+static Recycle *recycle = NULL;
 static long tick_acm = 0;
 
-List *
-asteroid_get_list (void)
+ListElmt *
+asteroid_get_list_head (void)
 {
-	return asteroid_live;
+	return recycle_list_head (recycle);
 }
 
 static Asteroid *
@@ -32,14 +31,6 @@ asteroid_new (void)
 	};
 
 	return a;
-}
-
-static List *
-asteroid_trash_recycle (void)
-{
-	List *shift = asteroid_trash;
-	asteroid_trash = list_remove_link (asteroid_trash, shift);
-	return shift;
 }
 
 static void
@@ -96,19 +87,7 @@ asteroid_setup (Asteroid *a)
 static void
 asteroid_split (Asteroid *a1)
 {
-	Asteroid *a2 = NULL;
-
-	if (asteroid_trash == NULL)
-		{
-			a2 = asteroid_new ();
-			asteroid_live = list_ins_prev (asteroid_live, a2);
-		}
-	else
-		{
-			List *l = asteroid_trash_recycle ();
-			a2 = list_data (l);
-			asteroid_live = list_concat (l, asteroid_live);
-		}
+	Asteroid *a2 = list_data (recycle_get_list_element (recycle));
 
 	a2->gone = false;
 	a2->heading = a1->heading - ALLEGRO_PI/12;
@@ -139,8 +118,7 @@ _asteroid_free (Asteroid *a)
 void
 asteroid_free (void)
 {
-	list_free (asteroid_live, (list_clean_data_fun) _asteroid_free);
-	list_free (asteroid_trash, (list_clean_data_fun) _asteroid_free);
+	recycle_free (recycle);
 }
 
 void
@@ -155,21 +133,10 @@ asteroid_control (void)
 	// Update ticks
 	tick_acm ++;
 
-	if (!(tick_acm % ASTEROID_RATE_SEC) || asteroid_live == NULL)
+	if (!(tick_acm % ASTEROID_RATE_SEC) || recycle_list_empty (recycle))
 		{
 			tick_acm = 0;
-			if (asteroid_trash == NULL)
-				{
-					Asteroid *a = asteroid_new ();
-					asteroid_setup (a);
-					asteroid_live = list_ins_prev (asteroid_live, a);
-				}
-			else
-				{
-					List *l = asteroid_trash_recycle ();
-					asteroid_setup (list_data (l));
-					asteroid_live = list_concat (l, asteroid_live);
-				}
+			asteroid_setup (list_data (recycle_get_list_element (recycle)));
 		}
 }
 
@@ -184,11 +151,11 @@ _asteroid_calculate_position (Asteroid *a)
 void
 asteroid_calculate_position (void)
 {
-	List *cur = asteroid_live;
+	ListElmt *cur = recycle_list_head (recycle);
 
 	while (cur != NULL)
 		{
-			List *next = list_next (cur);
+			ListElmt *next = list_next (cur);
 
 			Asteroid *a = list_data (cur);
 			_asteroid_calculate_position (a);
@@ -198,10 +165,7 @@ asteroid_calculate_position (void)
 					if (a->scale == 1)
 						asteroid_split (a);
 					else
-						{
-							asteroid_live = list_remove_link (asteroid_live, cur);
-							asteroid_trash = list_concat (cur, asteroid_trash);
-						}
+						recycle_remove_list_element (recycle, cur);
 				}
 
 			cur = next;
@@ -235,6 +199,13 @@ _asteroid_draw (Asteroid *a)
 void
 asteroid_draw (void)
 {
-	for (List *cur = asteroid_live; cur != NULL; cur = list_next (cur))
+	for (ListElmt *cur = recycle_list_head (recycle); cur != NULL; cur = list_next (cur))
 		_asteroid_draw (list_data (cur));
+}
+
+void
+asteroid_init (void)
+{
+	recycle = recycle_new ((RecycleCreate)asteroid_new,
+			(RecycleDestroy)_asteroid_free);
 }

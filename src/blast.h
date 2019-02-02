@@ -2,7 +2,7 @@
 #define BLAST_H
 
 #include <allegro5/allegro.h>
-#include "list.h"
+#include "recycle.h"
 #include "spaceship.h"
 
 typedef struct
@@ -22,12 +22,13 @@ typedef struct
 #define BLAST_PADDING 11
 #define BLAST_INTERVAL 4
 
-List * blast_get_list           (void);
-void   blast_die                (Blast *b);
-void   blast_fire               (Spaceship *s);
-void   blast_free               (void);
-void   blast_calculate_position (void);
-void   blast_draw               (void);
+ListElmt * blast_get_list_head      (void);
+void       blast_die                (Blast *b);
+void       blast_fire               (Spaceship *s);
+void       blast_free               (void);
+void       blast_calculate_position (void);
+void       blast_draw               (void);
+void       blast_init               (void);
 
 #define blast_get_sx(b)      (b->sx)
 #define blast_get_sy(b)      (b->sy)
