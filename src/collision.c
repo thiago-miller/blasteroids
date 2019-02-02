@@ -18,7 +18,7 @@ has_collision (float rad1, float sx1, float sy1,
 }
 
 void
-collision_detection (void)
+collision_detection (Spaceship *s)
 {
 	for (ListElmt *cur_a = asteroid_get_list_head (); cur_a != NULL; cur_a = list_next (cur_a))
 		{
@@ -29,6 +29,7 @@ collision_detection (void)
 					if (has_collision (asteroid_get_radius (a), asteroid_get_sx (a),
 								asteroid_get_sy (a), blast_get_radius (b), blast_get_sx (b), blast_get_sy (b)))
 						{
+							spaceship_add_points (s, ASTEROID_REWARD_POINTS);
 							asteroid_die (a);
 							blast_die (b);
 							break;

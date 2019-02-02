@@ -23,7 +23,9 @@ spaceship_new (void)
 		.sx     = DISPLAY_WIDTH / 2,
 		.sy     = DISPLAY_HEIGH / 2,
 		.radius = SPACESHIP_RADIUS,
-		.color  = SPACESHIP_COLOR
+		.color  = SPACESHIP_COLOR,
+		.lives  = SPACESHIP_LIVES,
+		.score  = 0
 	};
 
 	return s;
@@ -41,6 +43,12 @@ void
 spaceship_die (Spaceship *s)
 {
 	s->gone = true;
+}
+
+void
+spaceship_add_points (Spaceship *s, int points)
+{
+	s->score += points;
 }
 
 void

@@ -24,7 +24,9 @@ libblasteroids_la_SOURCES = \
 		collision.c \
 		collision.h \
 		recycle.c \
-		recycle.h
+		recycle.h \
+		status.c \
+		status.h
 
 libblasteroids_CPPFLAGS = $(ALLEGRO_CFLAGS)
 libblasteroids_LDADD = $(ALLEGRO_LIBS)

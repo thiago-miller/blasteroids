@@ -18,11 +18,15 @@ typedef struct
 	ALLEGRO_COLOR color;
 } Asteroid;
 
+#define ASTEROID_REWARD_POINTS 100
 #define ASTEROID_COLOR al_map_rgb (255, 255, 255)
 #define ASTEROID_RADIUS 25
 #define ASTEROID_SPEED 1.0f
 #define ASTEROID_RATE_SEC (FPS * 5)
 #define ASTEROID_ROT_VELOCITY (ALLEGRO_PI / 270)
+#define ASTEROID_ROT_SPLIT (ASTEROID_ROT_VELOCITY * 100)
+#define ASTEROID_PADDING_SPLIT 20
+#define ASTEROID_MIN_SCALE 0.25
 
 ListElmt * asteroid_get_list_head      (void);
 void       asteroid_die                (Asteroid *a);

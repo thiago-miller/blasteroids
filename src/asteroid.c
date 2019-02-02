@@ -25,11 +25,6 @@ asteroid_new (void)
 	if (a == NULL)
 		error ("Failed to create asteroid object");
 
-	*a = (Asteroid) {
-		.color = ASTEROID_COLOR,
-		.speed = ASTEROID_SPEED
-	};
-
 	return a;
 }
 
@@ -82,29 +77,35 @@ asteroid_setup (Asteroid *a)
 	a->heading = heading;
 	a->rot_velocity = rot_velocity;
 	a->gone = false;
+	a->speed = ASTEROID_SPEED;
+	a->color = ASTEROID_COLOR;
 }
 
 static void
 asteroid_split (Asteroid *a1)
 {
 	Asteroid *a2 = list_data (recycle_get_list_element (recycle));
+	*a2 = *a1;
 
+	// Setup child asteroid
 	a2->gone = false;
-	a2->heading = a1->heading - ALLEGRO_PI/12;
-	a2->scale = 0.5;
-	a2->radius = ASTEROID_RADIUS/2;
-	a2->rot_velocity = a1->rot_velocity * - 1;
-	a2->sx = a1->sx;
-	a2->sy = a1->sy;
+	a2->heading -= ASTEROID_ROT_SPLIT;
+	a2->scale /= 2;
+	a2->radius /= 2;
+	a2->rot_velocity *= -2;
+	a2->speed /= 2;
 	movement_calculate_2D_position (&a2->sx, &a2->sy,
-			a2->heading, -11);
+			a2->heading, -ASTEROID_PADDING_SPLIT);
 
+	// Setup parent asteroid
 	a1->gone = false;
-	a1->heading += ALLEGRO_PI/12;
-	a1->scale = 0.5;
-	a1->radius = ASTEROID_RADIUS/2;
+	a1->heading += ASTEROID_ROT_SPLIT;
+	a1->scale /= 2;
+	a1->radius /= 2;
+	a1->rot_velocity *= 2;
+	a1->speed /= 2;
 	movement_calculate_2D_position (&a1->sx, &a1->sy,
-			a1->heading, 11);
+			a1->heading, ASTEROID_PADDING_SPLIT);
 }
 
 static void
@@ -162,7 +163,7 @@ asteroid_calculate_position (void)
 
 			if (a->gone)
 				{
-					if (a->scale == 1)
+					if (a->scale > ASTEROID_MIN_SCALE)
 						asteroid_split (a);
 					else
 						recycle_remove_list_element (recycle, cur);
@@ -177,22 +178,22 @@ _asteroid_draw (Asteroid *a)
 {
 	ALLEGRO_TRANSFORM transform;
 	al_identity_transform (&transform);
-	al_scale_transform(&transform, a->scale, a->scale);
+	al_scale_transform(&transform, a->scale * 1.5, a->scale * 1.5);
 	al_rotate_transform (&transform, a->twist);
 	al_translate_transform (&transform, a->sx, a->sy);
 	al_use_transform (&transform);
-	al_draw_line(-20, 20, -25, 5, a->color, 2.0f);
-	al_draw_line(-25, 5, -25, -10, a->color, 2.0f);
-	al_draw_line(-25, -10, -5, -10, a->color, 2.0f);
-	al_draw_line(-5, -10, -10, -20, a->color, 2.0f);
-	al_draw_line(-10, -20, 5, -20, a->color, 2.0f);
-	al_draw_line(5, -20, 20, -10, a->color, 2.0f);
-	al_draw_line(20, -10, 20, -5, a->color, 2.0f);
-	al_draw_line(20, -5, 0, 0, a->color, 2.0f);
-	al_draw_line(0, 0, 20, 10, a->color, 2.0f);
-	al_draw_line(20, 10, 10, 20, a->color, 2.0f);
-	al_draw_line(10, 20, 0, 15, a->color, 2.0f);
-	al_draw_line(0, 15, -20, 20, a->color, 2.0f);
+	al_draw_line (-20, 20, -25, 5, a->color, 2.0f);
+	al_draw_line (-25, 5, -25, -10, a->color, 2.0f);
+	al_draw_line (-25, -10, -5, -10, a->color, 2.0f);
+	al_draw_line (-5, -10, -10, -20, a->color, 2.0f);
+	al_draw_line (-10, -20, 5, -20, a->color, 2.0f);
+	al_draw_line (5, -20, 20, -10, a->color, 2.0f);
+	al_draw_line (20, -10, 20, -5, a->color, 2.0f);
+	al_draw_line (20, -5, 0, 0, a->color, 2.0f);
+	al_draw_line (0, 0, 20, 10, a->color, 2.0f);
+	al_draw_line (20, 10, 10, 20, a->color, 2.0f);
+	al_draw_line (10, 20, 0, 15, a->color, 2.0f);
+	al_draw_line (0, 15, -20, 20, a->color, 2.0f);
 	/*al_draw_circle (0, 0, 25, al_map_rgb (200, 50, 200), 2.0f);*/
 }
 
