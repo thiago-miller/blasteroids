@@ -3,12 +3,14 @@
 #endif
 
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_audio.h>
 #include <stdlib.h>
 #include "error.h"
 #include "blasteroids.h"
 #include "movement.h"
 #include "spaceship.h"
 
+static ALLEGRO_SAMPLE *thrust = NULL;
 static float drift_heading = 0.0f;
 static bool is_drifting = true;
 static int inv_ticks = 0;
@@ -36,6 +38,10 @@ spaceship_new (void)
 
 	spaceship_setup (s);
 
+	thrust = al_load_sample ("../assets/sound/thrust.wav");
+	if (!thrust)
+		error ("Failed to load 'thrust.wav' sample");
+
 	return s;
 }
 
@@ -50,6 +56,10 @@ spaceship_free (Spaceship *s)
 {
 	if (s == NULL)
 		return;
+
+	if (thrust)
+		al_destroy_sample (thrust);
+
 	free (s);
 }
 
@@ -141,6 +151,7 @@ spaceship_drift (Spaceship *s)
 void
 spaceship_accelerate (Spaceship *s)
 {
+	al_play_sample (thrust, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
 	s->speed += SPACESHIP_ACCELERATION_GRADIENT;
 	if (s->speed > SPACESHIP_MAX_SPEED)
 		s->speed = SPACESHIP_MAX_SPEED;
