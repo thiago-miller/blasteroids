@@ -5,6 +5,7 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
+#include "blasteroids.h"
 #include "error.h"
 #include "status.h"
 
@@ -51,4 +52,15 @@ status_lives (int lives)
 			al_draw_line (-6, 4, -1, 4, al_map_rgb (0, 255, 0), 3.0f);
 			al_draw_line (6, 4, 1, 4, al_map_rgb (0, 255, 0), 3.0f);
 		}
+}
+
+void
+status_gameover_splash (void)
+{
+	ALLEGRO_TRANSFORM transform;
+	al_identity_transform (&transform);
+	al_scale_transform (&transform, 3.0f, 3.0f);
+	al_translate_transform (&transform, DISPLAY_WIDTH / 2, DISPLAY_HEIGH / 2);
+	al_use_transform (&transform);
+	al_draw_text (font, STATUS_GAMEOVER_COLOR, 0, 0, ALLEGRO_ALIGN_CENTER, "Game Over");
 }

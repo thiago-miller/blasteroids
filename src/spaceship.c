@@ -11,6 +11,21 @@
 
 static float drift_heading = 0.0f;
 static bool is_drifting = true;
+static int inv_ticks = 0;
+
+static void
+spaceship_setup (Spaceship *s)
+{
+	*s = (Spaceship) {
+		.sx         = DISPLAY_WIDTH / 2,
+		.sy         = DISPLAY_HEIGH / 2,
+		.radius     = SPACESHIP_RADIUS,
+		.color      = SPACESHIP_COLOR,
+		.lives      = SPACESHIP_LIVES,
+		.score      = 0,
+		.invincible = false
+	};
+}
 
 Spaceship *
 spaceship_new (void)
@@ -19,16 +34,15 @@ spaceship_new (void)
 	if (s == NULL)
 		error ("Failed to create spaceship object");
 
-	*s = (Spaceship) {
-		.sx     = DISPLAY_WIDTH / 2,
-		.sy     = DISPLAY_HEIGH / 2,
-		.radius = SPACESHIP_RADIUS,
-		.color  = SPACESHIP_COLOR,
-		.lives  = SPACESHIP_LIVES,
-		.score  = 0
-	};
+	spaceship_setup (s);
 
 	return s;
+}
+
+void
+spaceship_reset (Spaceship *s)
+{
+	spaceship_setup (s);
 }
 
 void
@@ -64,8 +78,44 @@ spaceship_rotate_right (Spaceship *s)
 }
 
 void
+spaceship_calculate_invencibility (Spaceship *s)
+{
+	static bool flip_color = true;
+	if (s->invincible)
+		{
+			if (inv_ticks >= SPACESHIP_INVINCIBILITY_TICKS)
+				{
+					inv_ticks = 0;
+					s->invincible = false;
+				}
+			else
+				inv_ticks++;
+
+			if (flip_color)
+				{
+					s->color = SPACESHIP_INVINCIBLE_COLOR;
+					flip_color = false;
+				}
+			else
+				{
+					s->color = SPACESHIP_COLOR;
+					flip_color = true;
+				}
+		}
+	else
+		s->color = SPACESHIP_COLOR;
+}
+
+void
 spaceship_calculate_position (Spaceship *s)
 {
+	if (s->gone)
+		{
+			s->lives --;
+			s->invincible = true;
+			s->gone = false;
+		}
+
 	float current_heading;
 
 	current_heading = is_drifting

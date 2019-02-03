@@ -10,15 +10,16 @@ typedef struct
 	float         radius;
 	int           lives;
 	long          score;
+	bool          invincible;
 	float         heading;
 	float         speed;
 	int           gone;
 	ALLEGRO_COLOR color;
 } Spaceship;
 
-
 #define SPACESHIP_LIVES 3
 #define SPACESHIP_COLOR al_map_rgb (0, 100, 0)
+#define SPACESHIP_INVINCIBLE_COLOR al_map_rgb (255, 100, 100);
 #define SPACESHIP_RADIUS 10
 #define SPACESHIP_MAX_SPEED 4.0f
 #define SPACESHIP_ACCELERATION_GRADIENT 0.05f
@@ -27,17 +28,19 @@ typedef struct
 #define SPACESHIP_DEGREE_OF_ROTATION_RADIAN (ALLEGRO_PI / 30)
 #define SPACESHIP_INVINCIBILITY_TICKS (4 * FPS)
 
-Spaceship * spaceship_new                (void);
-void        spaceship_free               (Spaceship *s);
-void        spaceship_die                (Spaceship *s);
-void        spaceship_add_points         (Spaceship *s, int points);
-void        spaceship_draw_ship          (Spaceship* s);
-void        spaceship_rotate_left        (Spaceship *s);
-void        spaceship_rotate_right       (Spaceship *s);
-void        spaceship_calculate_position (Spaceship *s);
-void        spaceship_drift              (Spaceship *s);
-void        spaceship_accelerate         (Spaceship *s);
-void        spaceship_decelerate         (Spaceship *s);
+Spaceship * spaceship_new                     (void);
+void        spaceship_reset                   (Spaceship *s);
+void        spaceship_free                    (Spaceship *s);
+void        spaceship_die                     (Spaceship *s);
+void        spaceship_add_points              (Spaceship *s, int points);
+void        spaceship_draw_ship               (Spaceship* s);
+void        spaceship_rotate_left             (Spaceship *s);
+void        spaceship_rotate_right            (Spaceship *s);
+void        spaceship_calculate_invencibility (Spaceship *s);
+void        spaceship_calculate_position      (Spaceship *s);
+void        spaceship_drift                   (Spaceship *s);
+void        spaceship_accelerate              (Spaceship *s);
+void        spaceship_decelerate              (Spaceship *s);
 
 #define spaceship_get_sx(s) (s->sx)
 #define spaceship_get_sy(s) (s->sy)
@@ -46,5 +49,6 @@ void        spaceship_decelerate         (Spaceship *s);
 #define spaceship_get_radius(s) (s->radius)
 #define spaceship_get_score(s) (s->score)
 #define spaceship_get_lives(s) (s->lives)
+#define spaceship_is_invincible(s) (s->invincible)
 
 #endif /* spaceship.h */

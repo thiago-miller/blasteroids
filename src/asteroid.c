@@ -12,6 +12,20 @@
 static Recycle *recycle = NULL;
 static long tick_acm = 0;
 
+void
+asteroid_reset (void)
+{
+	tick_acm = 0;
+	ListElmt *cur = recycle_list_head (recycle);
+
+	while (cur != NULL)
+		{
+			ListElmt *next = list_next (cur);
+			recycle_remove_list_element (recycle, cur);
+			cur = next;
+		}
+}
+
 ListElmt *
 asteroid_get_list_head (void)
 {
@@ -134,7 +148,7 @@ asteroid_control (void)
 	// Update ticks
 	tick_acm ++;
 
-	if (!(tick_acm % ASTEROID_RATE_SEC) || recycle_list_empty (recycle))
+	if (tick_acm == ASTEROID_RATE_SEC || recycle_list_empty (recycle))
 		{
 			tick_acm = 0;
 			asteroid_setup (list_data (recycle_get_list_element (recycle)));

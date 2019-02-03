@@ -12,6 +12,19 @@
 static Recycle *recycle = NULL;
 static int interval = BLAST_INTERVAL;
 
+void
+blast_reset (void)
+{
+	ListElmt *cur = recycle_list_head (recycle);
+
+	while (cur != NULL)
+		{
+			ListElmt *next = list_next (cur);
+			recycle_remove_list_element (recycle, cur);
+			cur = next;
+		}
+}
+
 ListElmt *
 blast_get_list_head (void)
 {

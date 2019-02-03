@@ -29,6 +29,7 @@ typedef struct
 #define ASTEROID_MIN_SCALE 0.25
 
 ListElmt * asteroid_get_list_head      (void);
+void       asteroid_reset              (void);
 void       asteroid_die                (Asteroid *a);
 void       asteroid_control            (void);
 void       asteroid_free               (void);

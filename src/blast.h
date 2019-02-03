@@ -23,6 +23,7 @@ typedef struct
 #define BLAST_INTERVAL 4
 
 ListElmt * blast_get_list_head      (void);
+void       blast_reset              (void);
 void       blast_die                (Blast *b);
 void       blast_fire               (Spaceship *s);
 void       blast_free               (void);

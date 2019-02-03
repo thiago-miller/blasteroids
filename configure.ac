@@ -20,7 +20,7 @@ AC_PROG_INSTALL
 # Checks for libraries.
 AC_SEARCH_LIBS([sqrt], [m], ,
 	[AC_MSG_ERROR([math (libm) not found!])])
-PKG_CHECK_MODULES([ALLEGRO], [allegro-5 allegro_primitives-5 allegro_font-5], ,
+PKG_CHECK_MODULES([ALLEGRO], [allegro-5 allegro_primitives-5 allegro_font-5 allegro_image-5], ,
 	[AC_MSG_ERROR([allegro-5.0 not found!])])
 
 # Checks for header files.
