@@ -6,7 +6,9 @@ noinst_LTLIBRARIES = libblasteroids.la
 
 libblasteroids_la_SOURCES = \
 		asteroid.c  \
+		asteroid.h  \
 		blast.c \
+		blast.h \
 		spaceship.c \
 		spaceship.h \
 		blasteroids.c \

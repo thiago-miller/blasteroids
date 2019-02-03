@@ -82,8 +82,6 @@ blasteroids_shutdown (void)
 	if (event_queue)
 		al_destroy_event_queue (event_queue);
 
-	al_uninstall_system ();
-
 	spaceship_free (s);
 	blast_free ();
 	asteroid_free ();
