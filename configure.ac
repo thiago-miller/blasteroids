@@ -31,5 +31,9 @@ AC_CHECK_HEADERS([allegro5/allegro5.h allegro5/allegro_primitives.h])
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_SIZE_T
 
+# Define variable to handle assets/ dir
+PKG_DATA_DIR="$srcdir/assets"
+AC_SUBST(PKG_DATA_DIR)
+
 AC_CONFIG_FILES([Makefile src/Makefile])
 AC_OUTPUT
