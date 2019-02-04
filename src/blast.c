@@ -4,7 +4,6 @@
 
 #include <allegro5/allegro_primitives.h>
 #include <stdlib.h>
-#include "blasteroids.h"
 #include "movement.h"
 #include "sound.h"
 #include "error.h"
@@ -80,20 +79,12 @@ blast_die (Blast *b)
 }
 
 static void
-check_if_blast_out_of_bounds (Blast *b)
-{
-	if (b->sx > DISPLAY_WIDTH || b->sx < 0)
-		b->gone = true;
-	if (b->sy > DISPLAY_WIDTH || b->sy < 0)
-		b->gone = true;
-}
-
-static void
 _blast_calculate_position (Blast *b)
 {
 	movement_calculate_2D_position (&b->sx, &b->sy,
 			b->heading, b->speed);
-	check_if_blast_out_of_bounds (b);
+	if (movement_is_out_of_bounds (b->sx, b->sy))
+		b->gone = true;
 }
 
 void

@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdbool.h>
 #include "blasteroids.h"
 #include "movement.h"
 
@@ -20,4 +21,10 @@ movement_teleport (float *sx, float *sy)
 		*sy = DISPLAY_HEIGH;
 	else if (*sy > DISPLAY_HEIGH)
 		*sy = 0;
+}
+
+bool
+movement_is_out_of_bounds (float sx, float sy)
+{
+	return sx > DISPLAY_WIDTH || sx < 0 || sy > DISPLAY_HEIGH  || sy < 0;
 }

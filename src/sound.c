@@ -67,7 +67,7 @@ sound_free (void)
 }
 
 void
-sound_play_sample (sound_sample_type type)
+sound_play_sample (SoundSampleType type)
 {
 	al_play_sample (samples[type], 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
 }

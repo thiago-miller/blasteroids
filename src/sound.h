@@ -9,11 +9,11 @@ typedef enum {
 	SOUND_BANG_LARGE,
 	SOUND_BANG_MEDIUM,
 	SOUND_BANG_SMALL
-} sound_sample_type;
+} SoundSampleType;
 
 void sound_init        (void);
 void sound_free        (void);
-void sound_play_sample (sound_sample_type type);
+void sound_play_sample (SoundSampleType type);
 void sound_play_music  (void);
 void sound_stop_music  (void);
 

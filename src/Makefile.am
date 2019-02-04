@@ -30,7 +30,9 @@ libblasteroids_la_SOURCES = \
 		status.c \
 		status.h \
 		sound.c \
-		sound.h
+		sound.h \
+		effect.c \
+		effect.h
 
 libblasteroids_CPPFLAGS = $(ALLEGRO_CFLAGS)
 libblasteroids_LDADD = $(ALLEGRO_LIBS)

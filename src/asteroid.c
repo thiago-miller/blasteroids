@@ -7,6 +7,7 @@
 #include "blasteroids.h"
 #include "movement.h"
 #include "sound.h"
+#include "effect.h"
 #include "error.h"
 #include "asteroid.h"
 
@@ -181,9 +182,15 @@ asteroid_calculate_position (void)
 					if (a->scale > ASTEROID_MIN_SCALE)
 						{
 							if (a->scale == 1)
-								sound_play_sample (SOUND_BANG_LARGE);
+								{
+									sound_play_sample (SOUND_BANG_LARGE);
+									effect_bang (a->sx, a->sy, EFFECT_BANG_LARGE);
+								}
 							else
-								sound_play_sample (SOUND_BANG_MEDIUM);
+								{
+									sound_play_sample (SOUND_BANG_MEDIUM);
+									effect_bang (a->sx, a->sy, EFFECT_BANG_MEDIUM);
+								}
 
 							asteroid_split (a);
 						}
@@ -191,6 +198,7 @@ asteroid_calculate_position (void)
 						{
 							recycle_remove_list_element (recycle, cur);
 							sound_play_sample (SOUND_BANG_SMALL);
+							effect_bang (a->sx, a->sy, EFFECT_BANG_SMALL);
 						}
 				}
 

@@ -12,6 +12,7 @@
 #include "collision.h"
 #include "status.h"
 #include "sound.h"
+#include "effect.h"
 #include "error.h"
 #include "blasteroids.h"
 
@@ -67,6 +68,7 @@ blasteroids_init (void)
 	blast_init ();
 	asteroid_init ();
 	status_init ();
+	effect_init ();
 }
 
 void
@@ -89,6 +91,7 @@ blasteroids_shutdown (void)
 	blast_free ();
 	asteroid_free ();
 	status_free ();
+	effect_free ();
 }
 
 static void
@@ -108,6 +111,7 @@ blasteroids_update_graphics (void)
 	spaceship_draw_ship (s);
 	blast_draw ();
 	asteroid_draw ();
+	effect_draw ();
 	status_score (spaceship_get_score (s));
 	status_lives (spaceship_get_lives (s));
 
@@ -127,6 +131,7 @@ blasteroids_update_logic (void)
 	asteroid_control ();
 	asteroid_calculate_position ();
 	collision_detection (s);
+	effect_control ();
 }
 
 static void
@@ -136,6 +141,7 @@ blasteroids_reset (void)
 	spaceship_reset (s);
 	blast_reset ();
 	asteroid_reset ();
+	effect_reset ();
 	al_rest (REST_RESET);
 	al_start_timer (timer);
 }
