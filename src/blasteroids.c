@@ -5,14 +5,13 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h>
-#include <allegro5/allegro_audio.h>
-#include <allegro5/allegro_acodec.h>
 #include "spaceship.h"
 #include "blast.h"
 #include "asteroid.h"
 #include "input.h"
 #include "collision.h"
 #include "status.h"
+#include "sound.h"
 #include "error.h"
 #include "blasteroids.h"
 
@@ -21,7 +20,6 @@ static ALLEGRO_EVENT_QUEUE *event_queue;
 static ALLEGRO_TIMER *timer;
 static ALLEGRO_DISPLAY *display;
 static ALLEGRO_BITMAP *background;
-static ALLEGRO_AUDIO_STREAM *music;
 static Spaceship *s;
 
 void
@@ -37,19 +35,6 @@ blasteroids_init (void)
 
 	if (!al_init_image_addon ())
 		error ("Failed to initialize image addon");
-
-	if (!al_install_audio ())
-		error ("Failed to install audio");
-
-	if (!al_init_acodec_addon ())
-		error ("Failed to initialize audio codecs");
-
-	if (!al_reserve_samples (6))
-		error ("Failed to reserve samples");
-
-	music = al_load_audio_stream ("../assets/music/01-speedway.ogg", 4, 1024);
-	if (!music)
-		error ("Failed to load '01-speedway.ogg' music");
 
 	if (!al_install_keyboard ())
 		error ("Failed to install keyboard");
@@ -77,6 +62,7 @@ blasteroids_init (void)
 
 	done = false;
 
+	sound_init ();
 	s = spaceship_new ();
 	blast_init ();
 	asteroid_init ();
@@ -95,12 +81,10 @@ blasteroids_shutdown (void)
 	if (background)
 		al_destroy_bitmap (background);
 
-	if (music)
-		al_destroy_audio_stream (music);
-
 	if (event_queue)
 		al_destroy_event_queue (event_queue);
 
+	sound_free ();
 	spaceship_free (s);
 	blast_free ();
 	asteroid_free ();
@@ -161,8 +145,7 @@ blasteroids_game_loop (void)
 {
 	bool redraw = true;
 	al_start_timer (timer);
-	al_attach_audio_stream_to_mixer (music, al_get_default_mixer ());
-	al_set_audio_stream_playing (music, true);
+	sound_play_music ();
 
 	while (!done)
 		{

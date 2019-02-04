@@ -19,6 +19,7 @@ typedef struct
 
 #define SPACESHIP_LIVES 3
 #define SPACESHIP_COLOR al_map_rgb (0, 100, 0)
+#define SPACESHIP_ACCELERATION_COLOR al_map_rgb (128, 9, 9)
 #define SPACESHIP_INVINCIBLE_COLOR al_map_rgb (255, 100, 100);
 #define SPACESHIP_RADIUS 10
 #define SPACESHIP_MAX_SPEED 4.0f

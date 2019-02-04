@@ -28,7 +28,9 @@ libblasteroids_la_SOURCES = \
 		recycle.c \
 		recycle.h \
 		status.c \
-		status.h
+		status.h \
+		sound.c \
+		sound.h
 
 libblasteroids_CPPFLAGS = $(ALLEGRO_CFLAGS)
 libblasteroids_LDADD = $(ALLEGRO_LIBS)

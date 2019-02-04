@@ -3,15 +3,14 @@
 #endif
 
 #include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_audio.h>
 #include <stdlib.h>
 #include "blasteroids.h"
 #include "movement.h"
+#include "sound.h"
 #include "error.h"
 #include "blast.h"
 
 static Recycle *recycle = NULL;
-static ALLEGRO_SAMPLE *fire = NULL;
 static int interval = BLAST_INTERVAL;
 
 void
@@ -71,9 +70,6 @@ _blast_free (Blast *b)
 void
 blast_free (void)
 {
-	if (fire)
-		al_destroy_sample (fire);
-
 	recycle_free (recycle);
 }
 
@@ -126,7 +122,7 @@ blast_fire (Spaceship *s)
 	if (interval == 0)
 		{
 			interval = BLAST_INTERVAL;
-			al_play_sample (fire, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+			sound_play_sample (SOUND_FIRE);
 			blast_setup (list_data (recycle_get_list_element (recycle)), s);
 		}
 }
@@ -153,10 +149,6 @@ blast_draw (void)
 void
 blast_init (void)
 {
-	fire = al_load_sample ("../assets/sound/fire.wav");
-	if (!fire)
-		error ("Failed to load 'fire.wav' sample");
-
 	recycle = recycle_new ((RecycleCreate)blast_new,
 			(RecycleDestroy)_blast_free);
 }

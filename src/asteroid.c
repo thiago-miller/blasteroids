@@ -3,17 +3,14 @@
 #endif
 
 #include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_audio.h>
 #include <stdlib.h>
 #include "blasteroids.h"
 #include "movement.h"
+#include "sound.h"
 #include "error.h"
 #include "asteroid.h"
 
 static Recycle *recycle = NULL;
-static ALLEGRO_SAMPLE *bang_large = NULL;
-static ALLEGRO_SAMPLE *bang_medium = NULL;
-static ALLEGRO_SAMPLE *bang_small = NULL;
 static long tick_acm = 0;
 
 void
@@ -137,15 +134,6 @@ _asteroid_free (Asteroid *a)
 void
 asteroid_free (void)
 {
-	if (bang_large)
-		al_destroy_sample (bang_large);
-
-	if (bang_medium)
-		al_destroy_sample (bang_medium);
-
-	if (bang_small)
-		al_destroy_sample (bang_small);
-
 	recycle_free (recycle);
 }
 
@@ -193,16 +181,16 @@ asteroid_calculate_position (void)
 					if (a->scale > ASTEROID_MIN_SCALE)
 						{
 							if (a->scale == 1)
-								al_play_sample (bang_large, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+								sound_play_sample (SOUND_BANG_LARGE);
 							else
-								al_play_sample (bang_medium, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+								sound_play_sample (SOUND_BANG_MEDIUM);
 
 							asteroid_split (a);
 						}
 					else
 						{
 							recycle_remove_list_element (recycle, cur);
-							al_play_sample (bang_small, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+							sound_play_sample (SOUND_BANG_SMALL);
 						}
 				}
 
@@ -244,18 +232,6 @@ asteroid_draw (void)
 void
 asteroid_init (void)
 {
-	bang_large = al_load_sample ("../assets/sound/bangLarge.wav");
-	if (!bang_large)
-		error ("Failed to load 'bangLarge.wav' sample");
-
-	bang_medium = al_load_sample ("../assets/sound/bangMedium.wav");
-	if (!bang_medium)
-		error ("Failed to load 'bangMedium.wav' sample");
-
-	bang_small = al_load_sample ("../assets/sound/bangSmall.wav");
-	if (!bang_small)
-		error ("Failed to load 'bangSmall.wav' sample");
-
 	recycle = recycle_new ((RecycleCreate)asteroid_new,
 			(RecycleDestroy)_asteroid_free);
 }
