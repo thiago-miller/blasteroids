@@ -12,14 +12,14 @@ static ALLEGRO_SAMPLE *samples[SOUND_RESERVED_SAMPLES] = {};
 
 static const char *samples_path[SOUND_RESERVED_SAMPLES] =
 {
-	"../assets/sound/thrust.wav",
-	"../assets/sound/fire.wav",
-	"../assets/sound/bangLarge.wav",
-	"../assets/sound/bangMedium.wav",
-	"../assets/sound/bangSmall.wav"
+	PACKAGE_DATA_DIR"/sound/thrust.wav",
+	PACKAGE_DATA_DIR"/sound/fire.wav",
+	PACKAGE_DATA_DIR"/sound/bangLarge.wav",
+	PACKAGE_DATA_DIR"/sound/bangMedium.wav",
+	PACKAGE_DATA_DIR"/sound/bangSmall.wav"
 };
 
-static const char *music_path = "../assets/music/01-speedway.ogg";
+static const char *music_path = PACKAGE_DATA_DIR"/music/01-speedway.ogg";
 
 void
 sound_init (void)

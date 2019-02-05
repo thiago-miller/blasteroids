@@ -34,5 +34,5 @@ libblasteroids_la_SOURCES = \
 		effect.c \
 		effect.h
 
-libblasteroids_CPPFLAGS = $(ALLEGRO_CFLAGS)
-libblasteroids_LDADD = $(ALLEGRO_LIBS)
+libblasteroids_la_CPPFLAGS = $(ALLEGRO_CFLAGS) -DPACKAGE_DATA_DIR='"$(pkgdatadir)/assets"'
+libblasteroids_la_LIBADD = $(ALLEGRO_LIBS)

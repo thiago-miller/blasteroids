@@ -21,6 +21,7 @@ static ALLEGRO_EVENT_QUEUE *event_queue;
 static ALLEGRO_TIMER *timer;
 static ALLEGRO_DISPLAY *display;
 static ALLEGRO_BITMAP *background;
+static const char *background_path = PACKAGE_DATA_DIR"/image/space.png";
 static Spaceship *s;
 
 void
@@ -49,7 +50,7 @@ blasteroids_init (void)
 	if (!display)
 		error ("Failed to create display");
 
-	background = al_load_bitmap ("../assets/image/space.png");
+	background = al_load_bitmap (background_path);
 	if (!background)
 		error	("failed to load background bitmap");
 

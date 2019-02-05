@@ -1,9 +1,9 @@
 ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = src
 
-imagedir = @PKG_DATA_DIR@/image
-musicdir = @PKG_DATA_DIR@/music
-sounddir = @PKG_DATA_DIR@/sound
+imagedir = @PACKAGE_DATA_SRCDIR@/image
+musicdir = @PACKAGE_DATA_SRCDIR@/music
+sounddir = @PACKAGE_DATA_SRCDIR@/sound
 
 nobase_dist_pkgdata_DATA = \
 	$(imagedir)/space.png \
