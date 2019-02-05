@@ -123,6 +123,19 @@ blasteroids_update_graphics (void)
 }
 
 static void
+blasteroids_reset (void)
+{
+	blasteroids_update_graphics ();
+	al_stop_timer (timer);
+	spaceship_reset (s);
+	blast_reset ();
+	asteroid_reset ();
+	effect_reset ();
+	al_rest (REST_RESET);
+	al_start_timer (timer);
+}
+
+static void
 blasteroids_update_logic (void)
 {
 	input_control_spaceship (s);
@@ -133,18 +146,9 @@ blasteroids_update_logic (void)
 	asteroid_calculate_position ();
 	collision_detection (s);
 	effect_control ();
-}
 
-static void
-blasteroids_reset (void)
-{
-	al_stop_timer (timer);
-	spaceship_reset (s);
-	blast_reset ();
-	asteroid_reset ();
-	effect_reset ();
-	al_rest (REST_RESET);
-	al_start_timer (timer);
+	if (spaceship_get_lives (s) == 0)
+		blasteroids_reset ();
 }
 
 void
@@ -185,8 +189,5 @@ blasteroids_game_loop (void)
 					redraw = false;
 					blasteroids_update_graphics ();
 				}
-
-			if (spaceship_get_lives (s) == 0)
-				blasteroids_reset ();
 		}
 }
