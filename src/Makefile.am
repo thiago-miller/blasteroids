@@ -32,7 +32,9 @@ libblasteroids_la_SOURCES = \
 		sound.c \
 		sound.h \
 		effect.c \
-		effect.h
+		effect.h \
+		score.c \
+		score.h
 
 libblasteroids_la_CPPFLAGS = $(ALLEGRO_CFLAGS) -DPACKAGE_DATA_DIR='"$(pkgdatadir)/assets"'
 libblasteroids_la_LIBADD = $(ALLEGRO_LIBS)
