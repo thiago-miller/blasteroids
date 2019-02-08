@@ -4,13 +4,17 @@
 
 #include <allegro5/allegro5.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "error.h"
 #include "score.h"
 
 #define NUM_SCORES 5
+#define NAME_BUFSIZ 80
+#define SCORE_BUFSIZ 32
 
 typedef struct {
-	char name[80];
+	char name[NAME_BUFSIZ];
 	long score;
 } HighScore;
 
@@ -29,7 +33,7 @@ score_save (void)
 	ALLEGRO_CONFIG *cfg = NULL;
 	ALLEGRO_PATH *fn = NULL;
 	const char *path = NULL;
-	char score_str[32];
+	char score_str[SCORE_BUFSIZ];
 
 	cfg = al_create_config ();
 
@@ -53,4 +57,71 @@ score_save (void)
 
 	al_destroy_path (fn);
 	al_destroy_config (cfg);
+}
+
+void
+score_load (void)
+{
+	ALLEGRO_PATH *fn = NULL;
+	ALLEGRO_CONFIG *cfg = NULL;
+	const char *path = NULL;
+
+	fn = al_get_standard_path (ALLEGRO_USER_DATA_PATH);
+	al_set_path_filename (fn, "score.ini");
+
+	path = al_path_cstr (fn, ALLEGRO_NATIVE_PATH_SEP);
+	cfg = al_load_config_file (path);
+
+	if (cfg)
+		{
+			ALLEGRO_CONFIG_ENTRY *iterator = NULL;
+			const char *name = al_get_first_config_entry (cfg, "scores",
+					&iterator);
+
+			for (int i = 0; i < NUM_SCORES; i++)
+				{
+					if (name == NULL)
+						break;
+					strncpy (highscores[i].name, name, NAME_BUFSIZ);
+					const char *score = al_get_config_value (cfg, "scores", name);
+					highscores[i].score = atol (score);
+					name = al_get_next_config_entry (&iterator);
+				}
+
+			al_destroy_config (cfg);
+		}
+
+	al_destroy_path (fn);
+}
+
+void
+score_print (void)
+{
+	score_load ();
+	for (int i = 0; i < NUM_SCORES; i++)
+		printf ("%s = %ld\n", highscores[i].name, highscores[i].score);
+}
+
+void
+score_insert (const char *name, long score)
+{
+	int i = 0;
+
+	for (; i < NUM_SCORES; i++)
+		{
+			if (score > highscores[i].score)
+				break;
+		}
+
+	if (i == NUM_SCORES)
+		return;
+
+	for (int j = NUM_SCORES - 1; j > i; j --)
+		{
+			strncpy (highScores[j].name, highscores[j - 1].name, NAME_BUFSIZ);
+			highscores[j].score = highscores[j - 1].score;
+		}
+
+	strncpy (highScores[i].name, name, NAME_BUFSIZ);
+	highscores[i].score = score;
 }
