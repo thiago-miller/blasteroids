@@ -118,10 +118,10 @@ score_insert (const char *name, long score)
 
 	for (int j = NUM_SCORES - 1; j > i; j --)
 		{
-			strncpy (highScores[j].name, highscores[j - 1].name, NAME_BUFSIZ);
+			strncpy (highscores[j].name, highscores[j - 1].name, NAME_BUFSIZ);
 			highscores[j].score = highscores[j - 1].score;
 		}
 
-	strncpy (highScores[i].name, name, NAME_BUFSIZ);
+	strncpy (highscores[i].name, name, NAME_BUFSIZ);
 	highscores[i].score = score;
 }

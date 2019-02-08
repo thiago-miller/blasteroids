@@ -24,6 +24,26 @@ static ALLEGRO_BITMAP *background;
 static const char *background_path = PACKAGE_DATA_DIR"/image/space.png";
 static Spaceship *s;
 
+typedef enum
+{
+	TITLE_SCREEN_STATE,
+	MENU_STATE,
+	GAME_STATE,
+	SCORE_STATE
+} BlasteroidsState;
+
+typedef bool (*blasteroids_input_handler) (ALLEGRO_EVENT *);
+typedef BlasteroidsState (*blasteroids_logic_handler) (void);
+typedef void (*blasteroids_graphic_handler) (void);
+
+typedef struct
+{
+	blasteroids_input_handler    input_handler;
+	blasteroids_logic_handler    logic_handler;
+	blasteroids_graphic_handler  graphic_handler;
+	BlasteroidsState             state;
+} BlasteroidsFSM;
+
 void
 blasteroids_init (void)
 {
@@ -135,7 +155,7 @@ blasteroids_reset (void)
 	al_start_timer (timer);
 }
 
-static void
+static BlasteroidsState
 blasteroids_update_logic (void)
 {
 	input_control_spaceship (s);
@@ -148,12 +168,27 @@ blasteroids_update_logic (void)
 	effect_control ();
 
 	if (spaceship_get_lives (s) == 0)
-		blasteroids_reset ();
+		{
+			blasteroids_reset ();
+			return SCORE_STATE;
+		}
+
+	return GAME_STATE;
 }
+
+BlasteroidsFSM machine[] =
+{
+	{0, 0, 0},
+	{0, 0, 0},
+	{input_get_user_input, blasteroids_update_logic, blasteroids_update_graphics, GAME_STATE},
+	{0, 0, 0}
+};
 
 void
 blasteroids_game_loop (void)
 {
+	BlasteroidsState next_state = GAME_STATE;
+
 	bool redraw = true;
 	al_start_timer (timer);
 	sound_play_music ();
@@ -168,13 +203,13 @@ blasteroids_game_loop (void)
 					case ALLEGRO_EVENT_KEY_DOWN:
 					case ALLEGRO_EVENT_KEY_UP:
 						{
-							done = input_get_user_input (&event);
+							done = machine[next_state].input_handler (&event);
 							break;
 						}
 					case ALLEGRO_EVENT_TIMER:
 						{
 							redraw = true;
-							blasteroids_update_logic ();
+							next_state = machine[next_state].logic_handler ();
 							break;
 						}
 					case ALLEGRO_EVENT_DISPLAY_CLOSE:
@@ -187,7 +222,7 @@ blasteroids_game_loop (void)
 			if (redraw && al_is_event_queue_empty (event_queue))
 				{
 					redraw = false;
-					blasteroids_update_graphics ();
+					machine[next_state].graphic_handler ();
 				}
 		}
 }
